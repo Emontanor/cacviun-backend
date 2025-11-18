@@ -19,4 +19,10 @@ export class AppController {
   async initRoles() {
     return this.appService.initRoles();
   }
+  
+  @Get('init-categories')
+  async initCategories() {
+    return this.appService.initCategory();
+  }
+
 }

@@ -45,4 +45,50 @@ export class AppService {
 
     return 'Roles collection initialized';
   }
+
+  async initCategory(): Promise<string> {
+    const collectionName = 'Categories';
+
+    const collections = await this.db.listCollections({ name: collectionName }).toArray();
+
+    if (collections.length === 0) {
+      await this.db.createCollection(collectionName);
+      console.log(`Collection "${collectionName}" created.`);
+    }
+
+    const categoriesCollection = this.db.collection(collectionName);
+
+    await categoriesCollection.updateOne(
+      { category_id: 1 },
+      { $set: { category_id: 1, description: "Physical Violence" } },
+      { upsert: true }
+    );
+
+    await categoriesCollection.updateOne(
+      { category_id: 2 },
+      { $set: { category_id: 2, description: "Psychological Violence" } },
+      { upsert: true }
+    );
+
+    await categoriesCollection.updateOne(
+      { category_id: 3 },
+      { $set: { category_id: 3, description: "Sexual Violence" } },
+      { upsert: true }
+    );
+
+    await categoriesCollection.updateOne(
+      { category_id: 4 },
+      { $set: { category_id: 4, description: "Workplace Violence" } },
+      { upsert: true }
+    );
+
+    await categoriesCollection.updateOne(
+      { category_id: 5 },
+      { $set: { category_id: 5, description: "Discrimination" } },
+      { upsert: true }
+    );
+
+    return 'Categories collection initialized';
+  }
+
 }
