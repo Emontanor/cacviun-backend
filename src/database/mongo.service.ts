@@ -85,5 +85,38 @@ export class MongoService {
 
     return 'Categories collection initialized';
   }
-  
+ 
+  async createReportsCollection() {
+    await this.db.createCollection("Reports");
+    return "Reports";
+  }
+
+  async createSessionsCollection() {
+    await this.db.createCollection("Sessions");
+    return "Sessions";
+  }
+
+  async createZonesCollection() {
+    await this.db.createCollection("Zones");
+    return "Zones";
+  }
+
+  async createAll() {
+    const created: string[] = [];
+
+    try {
+      created.push(await this.createReportsCollection());
+    } catch (_) {}
+
+    try {
+      created.push(await this.createSessionsCollection());
+    } catch (_) {}
+
+    try {
+      created.push(await this.createZonesCollection());
+    } catch (_) {}
+
+    return { created };
+  }
+
 }

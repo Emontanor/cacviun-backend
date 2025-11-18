@@ -25,4 +25,9 @@ export class MongoController {
     return this.mongoService.initCategory();
   }
 
+  @Get('create-all')
+  async createAllCollections() {
+    return this.mongoService.createAll();
+  }
+
 }
