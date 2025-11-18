@@ -10,19 +10,4 @@ export class AppController {
     return this.appService.getHello();
   }
 
-  @Get('test-db')
-  async testDb() {
-    return this.appService.testDbConnection();
-  }
-
-  @Get('init-roles')
-  async initRoles() {
-    return this.appService.initRoles();
-  }
-  
-  @Get('init-categories')
-  async initCategories() {
-    return this.appService.initCategory();
-  }
-
 }

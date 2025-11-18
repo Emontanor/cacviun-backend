@@ -10,4 +10,19 @@ export class MongoController {
     return { message: 'Mongo module working' };
   }
 
+  @Get('test-db')
+  async testDb() {
+    return this.mongoService.testDbConnection();
+  }
+
+  @Get('init-roles')
+  async initRoles() {
+    return this.mongoService.initRoles();
+  }
+  
+  @Get('init-categories')
+  async initCategories() {
+    return this.mongoService.initCategory();
+  }
+
 }

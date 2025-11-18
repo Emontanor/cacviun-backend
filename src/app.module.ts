@@ -4,7 +4,9 @@ import { AppService } from './app.service';
 import { MongoModule } from './database/mongo.module';
 
 @Module({
-  imports: [MongoModule],
+  imports: [
+    MongoModule
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
