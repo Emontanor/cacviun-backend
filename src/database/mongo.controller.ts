@@ -15,19 +15,14 @@ export class MongoController {
     return this.mongoService.testDbConnection();
   }
 
-  @Get('init-roles')
-  async initRoles() {
-    return this.mongoService.initRoles();
-  }
-  
-  @Get('init-categories')
-  async initCategories() {
-    return this.mongoService.initCategory();
-  }
-
   @Get('create-all')
   async createAllCollections() {
     return this.mongoService.createAll();
+  }
+
+  @Get('create-prueba')
+  async createPruebaFile(){
+    return this.mongoService.createPrueba();
   }
 
 }

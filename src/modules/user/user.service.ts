@@ -1,0 +1,156 @@
+import { Inject, Injectable } from '@nestjs/common';
+import { Db } from 'mongodb';
+import { VerificationDto } from './Dtos/verification.dto';
+import nodemailer from "nodemailer";
+import bcrypt from 'bcrypt';
+import type { VerificationCodeDto } from './Dtos/verification-code.dto';
+import { UserDto } from './Dtos/user.dto';
+
+@Injectable()
+export class UserService {
+  constructor(
+    @Inject("MONGO_DB") private readonly db: Db,
+  ) {}
+
+  private readonly SALT_ROUNDS = 12;
+
+  async sendVerificationCode(data: VerificationDto){
+    try{
+      const code = this.generateVerificationCode();
+      const appEmail = "aplicativocacviun@gmail.com";
+
+      const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: appEmail,       // tu correo Gmail
+        pass: "jmpx hohr sikb ektc",   // contraseña de aplicación
+      },
+      });
+      
+      const htmlTemplate = `
+        <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f7f7f7;">
+          <div style="max-width: 500px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+            <h2 style="color: #333333;">Hola ${data.name},</h2>
+            <p style="font-size: 16px; color: #555555;">
+              Te enviamos tu código de verificación, válido por 10 minutos:
+            </p>
+            <h1 style="text-align: center; color: #4CAF50; font-size: 32px; margin: 20px 0;">
+              ${code}
+            </h1>
+            <p style="font-size: 14px; color: #999999;">
+              Si no solicitaste este código, ignora este correo.
+            </p>
+          </div>
+        </div>
+      `;
+
+      await transporter.sendMail({
+        from: `CacviUn <${appEmail}>`,
+        to: data.email,
+        subject: "Código de Verificación - CacviUn",
+        html: htmlTemplate,
+      });
+
+      const registro = this.verificationDtoToDb(data, await this.encrypt(code));
+      await this.db.collection('VerificationCodes').updateOne(
+        { email: data.email, type: data.type },       // filtro por email y tipo
+        { $set: registro },          // reemplaza los campos
+        { upsert: true }             // inserta si no existe
+      );
+
+      return{ success: true, message: 'Verification code sent' };
+    } catch(error){
+      return{ success: false, message: 'Error sending verification code' };
+    }
+  }
+
+  async verifyCode(data: VerificationCodeDto){
+    try{
+      const result = await this.db.collection('VerificationCodes').findOne({
+        email: data.email,
+        type: data.type,
+      });
+
+      if (!result) {
+      console.log("No matching verification record found.");
+      return { success: false, message: "Invalid code" };
+      }
+
+      const isValid = await this.compareEncrypted(data.code, result.code);
+      if (isValid) {
+        console.log("Verification code is valid:", result);
+        await this.db.collection("VerificationCodes").deleteOne({
+          email: data.email,
+          type: data.type,
+        });
+        return { success: true, message: "Code verified" };
+      } else {
+        console.log("Verification code does not match.");
+        await this.db.collection("VerificationCodes").deleteOne({
+          email: data.email,
+          type: data.type,
+        });
+        return { success: false, message: "Invalid code" };
+      }
+    }catch(error){
+      return { success: false, message: "Error verifying code" }
+    }
+  }
+
+  async register(data: UserDto) {
+    try {
+      const registro = await this.userDtoToDb(data);
+
+      const existing = await this.db.collection("Users").findOne({ email: registro.email });
+      if (existing) {
+        return { success: false, message: "Usuario ya existente" };
+      }
+
+      await this.db.collection("Users").insertOne(registro);
+      console.log("User created", registro);
+      return { success: true, message: "Usuario registrado correctamente" };
+    } catch (error) {
+      console.error("Error registrando usuario:", error);
+      return { success: false, message: "Error registrando usuario" };
+    }
+  }
+
+  //funcion que genera el codigo de verificacion
+  private generateVerificationCode(): string {
+    const code = Math.floor(100000 + Math.random() * 900000);
+    return code.toString();
+  }
+
+  //funcion de encriptacion
+  async encrypt(data: string): Promise<string> {
+    const salt = await bcrypt.genSalt(this.SALT_ROUNDS);
+    const hash = await bcrypt.hash(data, salt);
+    return hash;
+  }
+
+  async compareEncrypted(data: string, hash: string): Promise<boolean> {
+    return bcrypt.compare(data, hash);
+  }
+
+  //funcion que convierte el dto a un formato para la base de datos
+  private verificationDtoToDb(data: VerificationDto, encryptedCode: string) {
+    return {
+      name: data.name,
+      email: data.email,
+      type: data.type,
+      code: encryptedCode,
+      createdAt: new Date(),
+    };
+  }
+
+  private async userDtoToDb(data: UserDto){
+    const password = await this.encrypt(data.password)
+    return {
+      name: data.name,
+      email: data.email,
+      password: password,
+      role: data.role,
+    };
+  }
+
+}
