@@ -86,10 +86,6 @@ export class UserService {
         return { success: true, message: "Code verified" };
       } else {
         console.log("Verification code does not match.");
-        await this.db.collection("VerificationCodes").deleteOne({
-          email: data.email,
-          type: data.type,
-        });
         return { success: false, message: "Invalid code" };
       }
     }catch(error){
