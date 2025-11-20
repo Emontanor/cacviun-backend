@@ -16,55 +16,69 @@ export class UserService {
 
   private readonly SALT_ROUNDS = 12;
 
-  async sendVerificationCode(data: VerificationDto){
-    try{
-      const code = this.generateVerificationCode();
-      const appEmail = "aplicativocacviun@gmail.com";
+  async sendVerificationCode(data: VerificationDto) {
+  try {
+    const code = this.generateVerificationCode();
+    const appEmail = "aplicativocacviun@gmail.com";
 
-      const transporter = nodemailer.createTransport({
+    // 👇 Si no viene el nombre, lo buscamos
+    let name = data.name;
+    if (!name) {
+      const user = await this.db
+        .collection("Users")
+        .findOne({ email: data.email });
+
+      name = user?.name || "Usuario"; // fallback si no existe
+    }
+
+    const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
-        user: appEmail,       // tu correo Gmail
-        pass: "jmpx hohr sikb ektc",   // contraseña de aplicación
+        user: appEmail,
+        pass: "jmpx hohr sikb ektc",
       },
-      });
-      
-      const htmlTemplate = `
-        <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f7f7f7;">
-          <div style="max-width: 500px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
-            <h2 style="color: #333333;">Hola ${data.name},</h2>
-            <p style="font-size: 16px; color: #555555;">
-              Te enviamos tu código de verificación, válido por 10 minutos:
-            </p>
-            <h1 style="text-align: center; color: #4CAF50; font-size: 32px; margin: 20px 0;">
-              ${code}
-            </h1>
-            <p style="font-size: 14px; color: #999999;">
-              Si no solicitaste este código, ignora este correo.
-            </p>
-          </div>
+    });
+
+    const htmlTemplate = `
+      <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f7f7f7;">
+        <div style="max-width: 500px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+          <h2 style="color: #333333;">Hola ${name},</h2>
+          <p style="font-size: 16px; color: #555555;">
+            Te enviamos tu código de verificación, válido por 10 minutos:
+          </p>
+          <h1 style="text-align: center; color: #4CAF50; font-size: 32px; margin: 20px 0;">
+            ${code}
+          </h1>
+          <p style="font-size: 14px; color: #999999;">
+            Si no solicitaste este código, ignora este correo.
+          </p>
         </div>
-      `;
+      </div>
+    `;
 
-      await transporter.sendMail({
-        from: `CacviUn <${appEmail}>`,
-        to: data.email,
-        subject: "Código de Verificación - CacviUn",
-        html: htmlTemplate,
-      });
+    await transporter.sendMail({
+      from: `CacviUn <${appEmail}>`,
+      to: data.email,
+      subject: "Código de Verificación - CacviUn",
+      html: htmlTemplate,
+    });
 
-      const registro = this.verificationDtoToDb(data, await this.encrypt(code));
-      await this.db.collection('VerificationCodes').updateOne(
-        { email: data.email, type: data.type },       // filtro por email y tipo
-        { $set: registro },          // reemplaza los campos
-        { upsert: true }             // inserta si no existe
-      );
+    const registro = this.verificationDtoToDb(
+      data,
+      await this.encrypt(code)
+    );
 
-      return{ success: true, message: 'Verification code sent' };
-    } catch(error){
-      return{ success: false, message: 'Error sending verification code' };
-    }
+    await this.db.collection("VerificationCodes").updateOne(
+      { email: data.email, type: data.type },
+      { $set: registro },
+      { upsert: true }
+    );
+
+    return { success: true, message: "Verification code sent" };
+  } catch (error) {
+    return { success: false, message: "Error sending verification code" };
   }
+}
 
   async verifyCode(data: VerificationCodeDto){
     try{
@@ -110,6 +124,24 @@ export class UserService {
     } catch (error) {
       console.error("Error registrando usuario:", error);
       return { success: false, message: "Error registrando usuario" };
+    }
+  }
+
+  async resetPassword(data: {email: string, password: string}){
+    try{
+      const hash = await this.encrypt(data.password);
+      const result = await this.db.collection('Users').updateOne(
+        { email: data.email },
+        { $set: {password: hash} }
+      );
+
+      if (result.matchedCount === 0) {
+        return { success: false, message: 'User not found' };
+      }
+
+      return { success: true, message: "Contraseña actualizada"};
+    } catch(error){
+      return {success: false, message: "Error buscando el correo"};
     }
   }
 

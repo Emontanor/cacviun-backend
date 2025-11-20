@@ -29,6 +29,11 @@ export class UserController {
         return await this.userService.login(data)
     }
 
+    @Post('reset-password')
+    async resetPassword(@Body() data: {email: string, password: string}){
+        return await this.userService.resetPassword(data);
+    }
+
     @Get('exist-email/:email')
     async existEmail(@Param('email') email: string){
         return await this.userService.existEmail(email);
