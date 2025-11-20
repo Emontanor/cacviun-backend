@@ -5,6 +5,8 @@ import nodemailer from "nodemailer";
 import bcrypt from 'bcrypt';
 import type { VerificationCodeDto } from './Dtos/verification-code.dto';
 import { UserDto } from './Dtos/user.dto';
+import { LoginDto } from './Dtos/login.dto';
+import { SessionDto } from './../Dtos/session.dto'
 
 @Injectable()
 export class UserService {
@@ -108,6 +110,40 @@ export class UserService {
     } catch (error) {
       console.error("Error registrando usuario:", error);
       return { success: false, message: "Error registrando usuario" };
+    }
+  }
+
+  async existEmail(email: string){
+    try{
+      const result = await this.db.collection('Users').findOne({email})
+      if(!result){
+        return {success: true, exist: false};
+      }
+
+      return {success: true, exist: true};
+    }catch(error){
+      return {success: false, message: "Error buscando el correo"};
+    }
+  }
+
+  async login(data: LoginDto){
+    try{
+      //console.log(data)
+      const user = await this.db.collection('Users').findOne({email: data.email});
+      if(user === null){
+        return {success: false, message: "No existe el usuario"};
+      }
+      if(await this.compareEncrypted(data.password,user.password)){
+        const session = {
+          name: user.name,
+          email: user.email,
+          role: user.role,
+        };
+        return {success: true, session:session};
+      }
+      return ({success: false, message: "Contraseña no coincide"})
+    }catch(error){
+      return {success: false, message: error?.message || "Error al validar el login"};
     }
   }
 

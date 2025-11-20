@@ -1,8 +1,9 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Get, Body, Param } from '@nestjs/common';
 import { UserService } from './user.service';
 import { VerificationDto } from './Dtos/verification.dto';
 import { UserDto } from './Dtos/user.dto';
 import type { VerificationCodeDto } from './Dtos/verification-code.dto';
+import { LoginDto } from './Dtos/login.dto';
 
 @Controller('user')
 export class UserController {
@@ -23,7 +24,14 @@ export class UserController {
         return await this.userService.register(data);
     }
 
+    @Post('login')
+    async login(@Body() data: LoginDto){
+        return await this.userService.login(data)
+    }
 
-
+    @Get('exist-email/:email')
+    async existEmail(@Param('email') email: string){
+        return await this.userService.existEmail(email);
+    }
 
 }
