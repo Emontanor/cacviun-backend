@@ -191,6 +191,7 @@ export class UserService {
     return hash;
   }
 
+  //funcion que compara una cadena con un hash para validar si corresponden
   async compareEncrypted(data: string, hash: string): Promise<boolean> {
     return bcrypt.compare(data, hash);
   }
