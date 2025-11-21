@@ -10,6 +10,18 @@ const violenceTypeMap: Record<string, number> = {
   "Discrimination": 5
 };
 
+const violenceTypeMapInverse: Record<number, string> = {
+  1 : "Physical Violence",
+  2 : "Psychological Violence",
+  3 : "Sexual Violence",
+  4 : "Workplace Violence",
+  5: "Discrimination"
+};
+
+const zoneMap: Record<number, string> = {
+  1 : "Universidad Nacional"
+}
+
 @Injectable()
 export class ReportService {
   constructor(
@@ -29,14 +41,50 @@ export class ReportService {
 
   async reportHistory(email: string) {
     try {
-        const reports = await this.db.collection('Reports').find({user_email: email }).toArray();
-        return { success: true, reportHistory: reports };
-    
-    }catch(error){
-        console.log(error);
-        return { success: false, message: "Error fetching report history from DB"}
-    }
+      const reports = await this.db.collection('Reports').find({ user_email: email }).toArray();
 
+      const reportsWithMappedValues = reports.map((report: any) => {
+        const transformed = { ...report };
+
+        transformed.category =violenceTypeMapInverse[report.category] ?? report.category;
+
+        // Mapear zone (string -> string)
+        transformed.zone =zoneMap[report.zone] ?? report.zone;return transformed;
+      });
+
+      return { success: true, reportHistory: reportsWithMappedValues };
+
+    } catch (error) {
+      console.log(error);
+      return {
+        success: false,
+        message: "Error fetching report history from DB"
+      };
+    }
+  }
+
+  async reportAdminHistory() {
+    try {
+      const reports = await this.db.collection('Reports').find({}).toArray();
+
+      const reportsWithMappedValues = reports.map((report: any) => {
+        const transformed = { ...report };
+
+        transformed.category =violenceTypeMapInverse[report.category] ?? report.category;
+
+        // Mapear zone (string -> string)
+        transformed.zone =zoneMap[report.zone] ?? report.zone;return transformed;
+      });
+
+      return { success: true, reportHistory: reportsWithMappedValues };
+
+    } catch (error) {
+      console.log(error);
+      return {
+        success: false,
+        message: "Error fetching report history from DB"
+      };
+    }
   }
 
   private async reportDtoToDb(reportDto: ReportDto){

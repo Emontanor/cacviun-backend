@@ -16,4 +16,8 @@ export class ReportController {
         return await this.reportService.reportHistory(email);
     }
 
+    @Get('admin-history')
+    async reportAdminHistory(){
+        return await this.reportService.reportAdminHistory();
+    }
 }
