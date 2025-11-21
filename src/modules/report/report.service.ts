@@ -27,6 +27,18 @@ export class ReportService {
     }
   }
 
+  async reportHistory(email: string) {
+    try {
+        const reports = await this.db.collection('Reports').find({user_email: email }).toArray();
+        return { success: true, reportHistory: reports };
+    
+    }catch(error){
+        console.log(error);
+        return { success: false, message: "Error fetching report history from DB"}
+    }
+
+  }
+
   private async reportDtoToDb(reportDto: ReportDto){
     const zone = 1;
     const category = this.typeDtoToDb(reportDto.type);

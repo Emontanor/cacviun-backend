@@ -11,4 +11,9 @@ export class ReportController {
         return await this.reportService.saveReport(data);
     }
 
+    @Get('history/:email')
+    async reportHistory(@Param('email') email: string){
+        return await this.reportService.reportHistory(email);
+    }
+
 }
