@@ -6,7 +6,6 @@ import bcrypt from 'bcrypt';
 import type { VerificationCodeDto } from './Dtos/verification-code.dto';
 import { UserDto } from './Dtos/user.dto';
 import { LoginDto } from './Dtos/login.dto';
-import { SessionDto } from './../Dtos/session.dto'
 
 @Injectable()
 export class UserService {
