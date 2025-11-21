@@ -34,9 +34,16 @@ export class UserController {
         return await this.userService.resetPassword(data);
     }
 
+    @Post('define-admin')
+    async defineAdmin(@Body() data: {email: string}){
+        return await this.userService.defineAdmin(data);
+    }
+
     @Get('exist-email/:email')
     async existEmail(@Param('email') email: string){
         return await this.userService.existEmail(email);
     }
+
+
 
 }

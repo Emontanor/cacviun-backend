@@ -178,6 +178,23 @@ export class UserService {
     }
   }
 
+  async defineAdmin(data: {email: string}){
+    try{
+      const result = await this.db.collection('Users').updateOne(
+        { email: data.email },
+        { $set: {role: "1"} }
+      );
+
+      if (result.matchedCount === 0) {
+        return { success: false, message: 'User not found' };
+      }
+
+      return { success: true, message: "Role updated"};
+    } catch(error){
+      return {success: false, message: "Error buscando el correo"};
+    }
+  }
+
   //funcion que genera el codigo de verificacion
   private generateVerificationCode(): string {
     const code = Math.floor(100000 + Math.random() * 900000);
