@@ -43,7 +43,4 @@ export class UserController {
     async existEmail(@Param('email') email: string){
         return await this.userService.existEmail(email);
     }
-
-
-
 }
