@@ -32,6 +32,7 @@ export class ReportService {
     const category = this.typeDtoToDb(reportDto.type);
     return({
         user_email: reportDto.email,
+        age: reportDto.age,
         description: reportDto.description,
         date: reportDto.date,
         category: category,
