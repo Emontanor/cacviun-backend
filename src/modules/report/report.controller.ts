@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, Param } from '@nestjs/common';
+import { Controller, Post, Get, Body, Param, Delete, Put} from '@nestjs/common';
 import { ReportService } from './report.service';
 import { ReportDto } from './Dtos/report.dot';
 
@@ -19,5 +19,16 @@ export class ReportController {
     @Get('admin-history')
     async reportAdminHistory(){
         return await this.reportService.reportAdminHistory();
+    }
+
+    @Delete('delete/:id')
+    async deleteReport(@Param('id') id: string) {
+        return this.reportService.deleteReportById(id);
+    }
+
+    @Put('edit/:id')
+    async replaceReport(@Param('id') id: string, @Body() body: { category?: string; description?: string }) {
+        // body.category is expected as string name, e.g. "Physical Violence"
+        return this.reportService.updateReportById(id, body);
     }
 }

@@ -1,6 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Db } from 'mongodb';
 import { ReportDto } from './Dtos/report.dot';
+import { ObjectId } from 'mongodb';
+
 
 const violenceTypeMap: Record<string, number> = {
   "Physical Violence": 1,
@@ -61,7 +63,59 @@ export class ReportService {
         message: "Error fetching report history from DB"
       };
     }
+  
   }
+  async deleteReportById(id: string) {
+      try {
+        const _id = new ObjectId(id);
+        const result = await this.db.collection('Reports').deleteOne({ _id });
+        if (result.deletedCount === 1) {
+          return { success: true, message: 'Report deleted' };
+        } else {
+          return { success: false, message: 'Report not found' };
+        }
+      } catch (error) {
+        console.log('deleteReportById error', error);
+        return { success: false, message: 'Error deleting report' };
+      }
+    }
+  async updateReportById(id: string, updates: { category?: string; description?: string }) {
+  try {
+    const _id = new ObjectId(id);
+    const setObj: any = {};
+    if (typeof updates.category === 'string') {
+      setObj.category = this.typeDtoToDb(updates.category);
+    }
+    if (typeof updates.description === 'string') {
+      setObj.description = updates.description;
+    }
+    // Si no hay campos para actualizar, salir temprano
+    if (Object.keys(setObj).length === 0) {
+      return { success: false, message: 'No updates provided' };
+    }
+
+    const res = await this.db.collection('Reports').updateOne({ _id }, { $set: setObj });
+    if (res.matchedCount === 0) return { success: false, message: 'Report not found' };
+
+    // Obtener doc actualizado para devolverlo (y mapear category)
+    const updated = await this.db.collection('Reports').findOne({ _id });
+    if (!updated) {
+      // El documento pudo ser eliminado entre la actualización y la lectura
+      return { success: false, message: 'Report not found' };
+    }
+
+    const transformed = { ...updated } as any;
+    // Asegurar el tipo al indexar los mapas
+    transformed.category = violenceTypeMapInverse[updated.category as number] ?? updated.category;
+    transformed.zone = zoneMap[updated.zone as number] ?? updated.zone;
+
+    return { success: true, message: 'Report updated', report: transformed };
+  } catch (error) {
+    console.log('updateReportById error', error);
+    return { success: false, message: 'Error updating report' };
+    }
+  }
+
 
   async reportAdminHistory() {
     try {
