@@ -7,7 +7,7 @@ export class AppController {
 
   @Get('try-connection')
   async getHello(): Promise<{ message: string }> {
-    return { message: "CACVIUN Backend is running!" };
+    return { message: "Ultimo intento antes de ser follado" };
   }
 
 }
