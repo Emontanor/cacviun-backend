@@ -5,7 +5,7 @@ import { AppService } from './app.service';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Get('Try-connection')
+  @Get('try-connection')
   async getHello(): Promise<{ message: string }> {
     return { message: "CACVIUN Backend is running!" };
   }

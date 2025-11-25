@@ -7,6 +7,7 @@ async function bootstrap() {
     origin: [
       'http://localhost:3000',
       'https://jumontenegrol.github.io/cacviun',
+      'https://jumontenegrol.github.io'
       
     ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
