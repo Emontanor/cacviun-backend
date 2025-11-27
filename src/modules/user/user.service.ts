@@ -16,68 +16,69 @@ export class UserService {
   private readonly SALT_ROUNDS = 12;
 
   async sendVerificationCode(data: VerificationDto) {
-  try {
-    const code = this.generateVerificationCode();
-    const appEmail = "aplicativocacviun@gmail.com";
+    try {
+      const code = this.generateVerificationCode();
+      const appEmail = "aplicativocacviun@gmail.com";
 
-    // 👇 Si no viene el nombre, lo buscamos
-    let name = data.name;
-    if (!name) {
-      const user = await this.db
-        .collection("Users")
-        .findOne({ email: data.email });
+      // 👇 Si no viene el nombre, lo buscamos
+      let name = data.name;
+      if (!name) {
+        const user = await this.db
+          .collection("Users")
+          .findOne({ email: data.email });
 
-      name = user?.name || "Usuario"; // fallback si no existe
-    }
+        name = user?.name || "Usuario"; // fallback si no existe
+      }
 
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: appEmail,
-        pass: "jmpx hohr sikb ektc",
-      },
-    });
+      const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: appEmail,
+          pass: "jmpx hohr sikb ektc",
+        },
+      });
 
-    const htmlTemplate = `
-      <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f7f7f7;">
-        <div style="max-width: 500px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
-          <h2 style="color: #333333;">Hola ${name},</h2>
-          <p style="font-size: 16px; color: #555555;">
-            Te enviamos tu código de verificación, válido por 10 minutos:
-          </p>
-          <h1 style="text-align: center; color: #4CAF50; font-size: 32px; margin: 20px 0;">
-            ${code}
-          </h1>
-          <p style="font-size: 14px; color: #999999;">
-            Si no solicitaste este código, ignora este correo.
-          </p>
+      const htmlTemplate = `
+        <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f7f7f7;">
+          <div style="max-width: 500px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+            <h2 style="color: #333333;">Hola ${name},</h2>
+            <p style="font-size: 16px; color: #555555;">
+              Te enviamos tu código de verificación, válido por 10 minutos:
+            </p>
+            <h1 style="text-align: center; color: #4CAF50; font-size: 32px; margin: 20px 0;">
+              ${code}
+            </h1>
+            <p style="font-size: 14px; color: #999999;">
+              Si no solicitaste este código, ignora este correo.
+            </p>
+          </div>
         </div>
-      </div>
-    `;
+      `;
 
-    await transporter.sendMail({
-      from: `CacviUn <${appEmail}>`,
-      to: data.email,
-      subject: "Código de Verificación - CacviUn",
-      html: htmlTemplate,
-    });
+      await transporter.sendMail({
+        from: `CacviUn <${appEmail}>`,
+        to: data.email,
+        subject: "Código de Verificación - CacviUn",
+        html: htmlTemplate,
+      });
 
-    const registro = this.verificationDtoToDb(
-      data,
-      await this.encrypt(code)
-    );
+      const registro = this.verificationDtoToDb(
+        data,
+        await this.encrypt(code)
+      );
 
-    await this.db.collection("VerificationCodes").updateOne(
-      { email: data.email, type: data.type },
-      { $set: registro },
-      { upsert: true }
-    );
+      await this.db.collection("VerificationCodes").updateOne(
+        { email: data.email, type: data.type },
+        { $set: registro },
+        { upsert: true }
+      );
 
-    return { success: true, message: "Verification code sent" };
-  } catch (error) {
-    return { success: false, message: "Error sending verification code" };
+      return { success: true, message: "Verification code sent" };
+    } catch (error) {
+      console.log(error);
+      return { success: false, message: "Error sending verification code" };
+    }
   }
-}
 
   async verifyCode(data: VerificationCodeDto){
     try{

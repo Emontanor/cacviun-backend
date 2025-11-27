@@ -11,6 +11,7 @@ export class UserController {
 
     @Post('send-verification-code')
     async sendVerificationCode(@Body() data: VerificationDto) {
+        console.log("BODY RECIBIDO:", data);
         return await this.userService.sendVerificationCode(data);
     }
 
