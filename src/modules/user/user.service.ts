@@ -3,6 +3,7 @@ import { Db } from 'mongodb';
 import { VerificationDto } from './Dtos/verification.dto';
 import nodemailer from "nodemailer";
 import bcrypt from 'bcrypt';
+import { Resend } from "resend";
 import type { VerificationCodeDto } from './Dtos/verification-code.dto';
 import { UserDto } from './Dtos/user.dto';
 import { LoginDto } from './Dtos/login.dto';
@@ -18,25 +19,19 @@ export class UserService {
   async sendVerificationCode(data: VerificationDto) {
     try {
       const code = this.generateVerificationCode();
-      const appEmail = "aplicativocacviun@gmail.com";
 
-      // 👇 Si no viene el nombre, lo buscamos
+      // Buscar el nombre si no viene
       let name = data.name;
       if (!name) {
         const user = await this.db
           .collection("Users")
           .findOne({ email: data.email });
 
-        name = user?.name || "Usuario"; // fallback si no existe
+        name = user?.name || "Usuario";
       }
 
-      const transporter = nodemailer.createTransport({
-        service: "gmail",
-        auth: {
-          user: appEmail,
-          pass: "jmpx hohr sikb ektc",
-        },
-      });
+      // Inicializar Resend con tu API KEY
+      const resend = new Resend("re_ZEhuKH7v_MKJ6TWG1cpd93mmRUF9iRkCL");
 
       const htmlTemplate = `
         <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f7f7f7;">
@@ -55,13 +50,15 @@ export class UserService {
         </div>
       `;
 
-      await transporter.sendMail({
-        from: `CacviUn <${appEmail}>`,
+      // Enviar correo vía Resend
+      await resend.emails.send({
+        from: "CacviUn <onboarding@resend.dev>",
         to: data.email,
         subject: "Código de Verificación - CacviUn",
         html: htmlTemplate,
       });
 
+      // Guardar en BD
       const registro = this.verificationDtoToDb(
         data,
         await this.encrypt(code)
@@ -75,7 +72,7 @@ export class UserService {
 
       return { success: true, message: "Verification code sent" };
     } catch (error) {
-      console.log(error);
+      console.error(error);
       return { success: false, message: "Error sending verification code" };
     }
   }
