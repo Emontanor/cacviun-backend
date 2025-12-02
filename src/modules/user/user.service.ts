@@ -52,12 +52,12 @@ export class UserService {
 
       // Enviar correo vía Resend
       await resend.emails.send({
-        from: "CacviUn <onboarding@resend.dev>",
+        from: "CacviUn <no-reply@cacviun.online>",
         to: data.email,
         subject: "Código de Verificación - CacviUn",
         html: htmlTemplate,
       });
-      console.log("Correo enviado con exito");
+      console.log(`Correo enviado con exito a ${data.email}`);
 
       // Guardar en BD
       const registro = this.verificationDtoToDb(
