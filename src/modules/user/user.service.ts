@@ -57,6 +57,7 @@ export class UserService {
         subject: "Código de Verificación - CacviUn",
         html: htmlTemplate,
       });
+      console.log("Correo enviado con exito");
 
       // Guardar en BD
       const registro = this.verificationDtoToDb(
