@@ -55,7 +55,7 @@ export class UserService {
       `;
 
       // Configurar remitente (tu sender verificado)
-      const sender = new Sender("aplicativocacviun@gmail.com", "CacviUn");
+      const sender = new Sender("No-reply-CacviUn@test-nrw7gyme8rng2k8e.mlsender.net", "CacviUn");
 
       // Configurar destinatario
       const recipient = [new Recipient(data.email, name)];
