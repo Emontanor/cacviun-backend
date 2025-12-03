@@ -7,6 +7,7 @@ import { Resend } from "resend";
 import type { VerificationCodeDto } from './Dtos/verification-code.dto';
 import { UserDto } from './Dtos/user.dto';
 import { LoginDto } from './Dtos/login.dto';
+import { MailerSend, EmailParams, Sender, Recipient } from "mailersend";
 
 @Injectable()
 export class UserService {
@@ -16,6 +17,7 @@ export class UserService {
 
   private readonly SALT_ROUNDS = 12;
 
+  
   async sendVerificationCode(data: VerificationDto) {
     try {
       const code = this.generateVerificationCode();
@@ -30,8 +32,10 @@ export class UserService {
         name = user?.name || "Usuario";
       }
 
-      // Inicializar Resend con tu API KEY
-      const resend = new Resend("re_ZEhuKH7v_MKJ6TWG1cpd93mmRUF9iRkCL");
+      // Inicializar MailerSend
+      const mailerSend = new MailerSend({
+        apiKey: process.env.MAILERSEND_API_KEY!,
+      });
 
       const htmlTemplate = `
         <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f7f7f7;">
@@ -50,14 +54,22 @@ export class UserService {
         </div>
       `;
 
-      // Enviar correo vía Resend
-      await resend.emails.send({
-        from: "CacviUn <no-reply@cacviun.online>",
-        to: data.email,
-        subject: "Código de Verificación - CacviUn",
-        html: htmlTemplate,
-      });
-      console.log(`Correo enviado con exito a ${data.email}`);
+      // Configurar remitente (tu sender verificado)
+      const sender = new Sender("aplicativocacviun@gmail.com", "CacviUn");
+
+      // Configurar destinatario
+      const recipient = [new Recipient(data.email, name)];
+
+      // Crear parámetros del email
+      const emailParams = new EmailParams()
+        .setFrom(sender)
+        .setTo(recipient)
+        .setSubject("Código de Verificación - CacviUn")
+        .setHtml(htmlTemplate);
+
+      // Enviar email vía MailerSend
+      await mailerSend.email.send(emailParams);
+      console.log(`Correo enviado con éxito a ${data.email}`);
 
       // Guardar en BD
       const registro = this.verificationDtoToDb(
@@ -72,8 +84,9 @@ export class UserService {
       );
 
       return { success: true, message: "Verification code sent" };
+
     } catch (error) {
-      console.error(error);
+      console.error(error.response?.body || error);
       return { success: false, message: "Error sending verification code" };
     }
   }
