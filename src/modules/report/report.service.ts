@@ -21,8 +21,17 @@ const violenceTypeMapInverse: Record<number, string> = {
 };
 
 const zoneMap: Record<number, string> = {
-  1 : "Universidad Nacional"
-}
+  1: "Plaza Central Che", // Zona icónica de encuentro
+  2: "Edificio Uriel Gutiérrez (Medicina)", // Edificio de posgrados y ciencias de la salud
+  3: "Biblioteca Central (Hemeroteca)", // Zona de estudio y conocimiento
+  4: "Facultad de Ingeniería (Edificio 401)", // Área de ingeniería y tecnología
+  5: "Edificio de Ciencia y Tecnología (CYT)", // Área de laboratorios y desarrollo
+  6: "Bosque de la Memoria", // Zona verde y de descanso
+  7: "Maloka (Intercambiador - Ciudad Universitaria)", // Zona cercana a la entrada y transporte
+  8: "Estadio Alfonso López", // Zona deportiva
+  9: "Facultad de Artes (Taller de Arquitectura)", // Área creativa y de diseño
+  10: "Museo de Arquitectura Leopoldo Rother", // Zona cultural y patrimonial
+};
 
 @Injectable()
 export class ReportService {
