@@ -5,4 +5,8 @@ import { DashboardService } from './dashboard.service';
 @Controller('dashboard')
 export class DashboardController {
     constructor(private readonly dashboardService: DashboardService) {}
+    @Get('get-locations')
+    async getLocations() {
+        return this.dashboardService.getLocations();
+    }
 }
