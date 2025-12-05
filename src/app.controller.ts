@@ -7,7 +7,7 @@ export class AppController {
 
   @Get('try-connection')
   async getHello(): Promise<{ message: string }> {
-    return { message: "Ultimo intento antes de ser follado" };
+    return { message: "Servidor Corriendo" };
   }
 
 }
