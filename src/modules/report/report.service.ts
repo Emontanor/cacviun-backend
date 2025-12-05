@@ -2,6 +2,9 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Db } from 'mongodb';
 import { ReportDto } from './Dtos/report.dot';
 import { ObjectId } from 'mongodb';
+import * as turf from '@turf/helpers';
+import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
+import * as mapData from './assets/map.json';
 
 
 const violenceTypeMap: Record<string, number> = {
@@ -21,16 +24,45 @@ const violenceTypeMapInverse: Record<number, string> = {
 };
 
 const zoneMap: Record<number, string> = {
-  1: "Plaza Central Che", // Zona icónica de encuentro
-  2: "Edificio Uriel Gutiérrez (Medicina)", // Edificio de posgrados y ciencias de la salud
-  3: "Biblioteca Central (Hemeroteca)", // Zona de estudio y conocimiento
-  4: "Facultad de Ingeniería (Edificio 401)", // Área de ingeniería y tecnología
-  5: "Edificio de Ciencia y Tecnología (CYT)", // Área de laboratorios y desarrollo
-  6: "Bosque de la Memoria", // Zona verde y de descanso
-  7: "Maloka (Intercambiador - Ciudad Universitaria)", // Zona cercana a la entrada y transporte
-  8: "Estadio Alfonso López", // Zona deportiva
-  9: "Facultad de Artes (Taller de Arquitectura)", // Área creativa y de diseño
-  10: "Museo de Arquitectura Leopoldo Rother", // Zona cultural y patrimonial
+  1: "El Viejo",
+  2: "La Playita",
+  3: "El Jaguar",
+  4: "Farmacia",
+  5: "Quimica",
+  6: "Medicina",
+  7: "Veterinaria",
+  8: "Enfermeria",
+  9: "Derecho",
+  10: "Humanas",
+  11: "Freud",
+  12: "Ondontologia y Ciencias Humanas",
+  13: "Diseño Grafico",
+  14: "Entrada de la 26",
+  15: "Capilla",
+  16: "Museo de Arte y Parque",
+  17: "Museo de Arquitectura",
+  18: "Plaza Che",
+  19: "Parque Entrada 30",
+  20: "Administrativos Calle 30",
+  21: "Economia y Arquitectura",
+  22: "Musica y Artes",
+  23: "EM e Hidraulica",
+  24: "Laboratorios de Ingenierias",
+  25: "Aulas de Ingenieria",
+  26: "CYT",
+  27: "Ciencias",
+  28: "Humbolt",
+  29: "Parque CYT",
+  30: "Complejo Deportivo",
+  31: "IPARM",
+  32: "Biologia",
+  33: "Jardin UN",
+  34: "Posgrados de Humanas y Geologia",
+  35: "Edificio Gloria Galeano y Agronomia",
+  36: "ICA",
+  37: "Invernaderos",
+  38: "Hemeroteca",
+  39: "Administrativos"
 };
 
 @Injectable()
@@ -151,7 +183,7 @@ export class ReportService {
   }
 
   private async reportDtoToDb(reportDto: ReportDto){
-    const zone = 1;
+    const zone = this.locationToZone(reportDto.location.latitud, reportDto.location.longitud);
     const category = this.typeDtoToDb(reportDto.type);
     return({
         user_email: reportDto.email,
@@ -165,6 +197,27 @@ export class ReportService {
         version: "1"
     });
   }
+
+  private locationToZone(latitud: string, longitud: string): number {
+    const lat = parseFloat(latitud);
+    const lng = parseFloat(longitud);
+
+    let foundZone: number | null = null;
+
+    // Iterar sobre las features del GeoJSON para encontrar la zona
+    for (const feature of mapData.features) {
+      if (booleanPointInPolygon(turf.point([lng, lat]), feature as any)) {
+        foundZone = Number(feature.properties.Id);
+        break;
+      }
+    }
+
+    if (foundZone === null) {
+      throw new Error('Location is not inside any valid zone');
+    }
+
+    return foundZone;
+  } 
 
   private typeDtoToDb(type: string){
     const id = violenceTypeMap[type];
