@@ -14,4 +14,9 @@ export class DashboardController {
     async getRecentViolence() {
         return this.dashboardService.getRecentViolenceReports();
     }
+
+    @Get('get-data')
+    async reportAdminHistory(){
+        return await this.dashboardService.reportAdminHistory();
+    }
 }

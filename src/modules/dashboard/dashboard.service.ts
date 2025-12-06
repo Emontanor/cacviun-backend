@@ -9,6 +9,48 @@ const violenceTypeMapInverse: Record<number, string> = {
   5: 'Discrimination',
 };
 
+const zoneMap: Record<number, string> = {
+  1: "El Viejo",
+  2: "La Playita",
+  3: "El Jaguar",
+  4: "Farmacia",
+  5: "Quimica",
+  6: "Medicina",
+  7: "Veterinaria",
+  8: "Enfermeria",
+  9: "Derecho",
+  10: "Humanas",
+  11: "Freud",
+  12: "Ondontologia y Ciencias Humanas",
+  13: "Diseño Grafico",
+  14: "Entrada de la 26",
+  15: "Capilla",
+  16: "Museo de Arte y Parque",
+  17: "Museo de Arquitectura",
+  18: "Plaza Che",
+  19: "Parque Entrada 30",
+  20: "Administrativos Calle 30",
+  21: "Economia y Arquitectura",
+  22: "Musica y Artes",
+  23: "EM e Hidraulica",
+  24: "Laboratorios de Ingenierias",
+  25: "Aulas de Ingenieria",
+  26: "CYT",
+  27: "Ciencias",
+  28: "Humbolt",
+  29: "Parque CYT",
+  30: "Complejo Deportivo",
+  31: "IPARM",
+  32: "Biologia",
+  33: "Jardin UN",
+  34: "Posgrados de Humanas y Geologia",
+  35: "Edificio Gloria Galeano y Agronomia",
+  36: "ICA",
+  37: "Invernaderos",
+  38: "Hemeroteca",
+  39: "Administrativos"
+};
+
 @Injectable()
 export class DashboardService {
 
@@ -72,6 +114,30 @@ export class DashboardService {
     } catch (error) {
       console.log('getRecentViolenceReports error', error);
       return { success: false, message: 'Error fetching recent violence reports' };
+    }
+  }
+
+  async reportAdminHistory() {
+    try {
+      const reports = await this.db.collection('Reports').find({}).toArray();
+
+      const reportsWithMappedValues = reports.map((report: any) => {
+        const transformed = { ...report };
+
+        transformed.category =violenceTypeMapInverse[report.category] ?? report.category;
+
+        // Mapear zone (string -> string)
+        transformed.zone =zoneMap[report.zone] ?? report.zone;return transformed;
+      });
+
+      return { success: true, reportHistory: reportsWithMappedValues };
+
+    } catch (error) {
+      console.log(error);
+      return {
+        success: false,
+        message: "Error fetching report history from DB"
+      };
     }
   }
 }
