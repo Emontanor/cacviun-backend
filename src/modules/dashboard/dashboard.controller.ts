@@ -9,4 +9,9 @@ export class DashboardController {
     async getLocations() {
         return this.dashboardService.getLocations();
     }
+
+    @Get('recent-violence')
+    async getRecentViolence() {
+        return this.dashboardService.getRecentViolenceReports();
+    }
 }
