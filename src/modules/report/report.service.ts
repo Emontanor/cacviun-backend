@@ -157,6 +157,31 @@ export class ReportService {
     }
   }
 
+
+  async reportAdminHistory() {
+    try {
+      const reports = await this.db.collection('Reports').find({}).toArray();
+
+      const reportsWithMappedValues = reports.map((report: any) => {
+        const transformed = { ...report };
+
+        transformed.category =violenceTypeMapInverse[report.category] ?? report.category;
+
+        // Mapear zone (string -> string)
+        transformed.zone =zoneMap[report.zone] ?? report.zone;return transformed;
+      });
+
+      return { success: true, reportHistory: reportsWithMappedValues };
+
+    } catch (error) {
+      console.log(error);
+      return {
+        success: false,
+        message: "Error fetching report history from DB"
+      };
+    }
+  }
+
   private async reportDtoToDb(reportDto: ReportDto){
     const zone = this.locationToZone(reportDto.location.latitud, reportDto.location.longitud);
     const category = this.typeDtoToDb(reportDto.type);

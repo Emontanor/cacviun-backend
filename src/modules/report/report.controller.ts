@@ -16,6 +16,11 @@ export class ReportController {
         return await this.reportService.reportHistory(email);
     }
 
+    @Get('admin-history')
+    async reportAdminHistory(){
+        return await this.reportService.reportAdminHistory();
+    }
+
     @Delete('delete/:id')
     async deleteReport(@Param('id') id: string) {
         return this.reportService.deleteReportById(id);
