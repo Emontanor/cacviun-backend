@@ -33,20 +33,40 @@ export class DashboardService {
   }
 
   async getRecentViolenceReports() {
-    try {
-      const reports = await this.db.collection('Reports')
-        .find({}, { projection: { date: 1, category: 1, creationTime: 1 } })
-        .sort({ creationTime: -1, _id: -1 })
-        .limit(20)
-        .toArray();
+  try {
+    const reports = await this.db.collection('Reports')
+      .find(
+        {},
+        {
+          projection: {
+            date: 1,
+            category: 1,
+            creationTime: 1,
+            'location.latitud': 1,
+            'location.longitud': 1,
+          },
+        },
+      )
+      .sort({ creationTime: -1, _id: -1 })
+      .limit(20)
+      .toArray();
 
-      const data = reports
-        .map((report: any) => ({
-          date: report.date,
-          categoryId: report.category,
-          categoryLabel: violenceTypeMapInverse[report.category as number] ?? report.category,
-        }))
-        .filter((item) => item.date && item.categoryId !== undefined && item.categoryId !== null);
+    const data = reports
+      .map((report: any) => ({
+        date: report.date,
+        categoryId: report.category,
+        categoryLabel: violenceTypeMapInverse[report.category as number] ?? report.category,
+        latitud: report.location?.latitud,
+        longitud: report.location?.longitud,
+      }))
+      .filter(
+        (item) =>
+          item.date &&
+          item.categoryId !== undefined &&
+          item.categoryId !== null &&
+          item.latitud &&
+          item.longitud
+      );
 
       return { success: true, data };
     } catch (error) {
