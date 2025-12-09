@@ -7,18 +7,17 @@ const uri = "mongodb+srv://fhernandezm_db_admin:Fhm1qazz@cluster0.tu5cn67.mongod
 const client = new MongoClient(uri);
 
 @Module({
-    providers: [
-        {
-            provide: "MONGO_DB",
-            useFactory: async () => {
-                await client.connect();
-                return client.db();
-            },
-        },
-        MongoService,
-    ],
-    controllers: [MongoController],
-    exports: ["MONGO_DB",MongoService],
+  providers: [
+    {
+      provide: 'MONGO_DB',
+      useFactory: async () => {
+        await client.connect();
+        return client.db();
+      },
+    },
+    MongoService,
+  ],
+  controllers: [MongoController],
+  exports: ["MONGO_DB",MongoService],
 })
-
 export class MongoModule {}

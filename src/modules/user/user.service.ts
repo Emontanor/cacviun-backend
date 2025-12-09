@@ -134,6 +134,7 @@ export class UserService {
       return { success: true, message: "Usuario registrado correctamente" };
     } catch (error) {
       console.error("Error registrando usuario:", error);
+
       return { success: false, message: "Error registrando usuario" };
     }
   }
@@ -170,7 +171,7 @@ export class UserService {
   }
 
   async login(data: LoginDto){
-    try{
+    try {
       //console.log(data)
       const user = await this.db.collection('Users').findOne({email: data.email});
       if(user === null){
