@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Db } from 'mongodb';
 
-interface Report {
+export interface Report {
   id?: number;
   age?: number;
   creationTime?: string;
@@ -17,7 +17,7 @@ interface Report {
   zone?: number;
 }
 
-interface ReportMapped extends Omit<Report, 'category' | 'zone'> {
+export interface ReportMapped extends Omit<Report, 'category' | 'zone'> {
   category: string;
   zone?: string;
 }
