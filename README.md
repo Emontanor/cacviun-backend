@@ -1,98 +1,228 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# CACVIUN Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Backend for the CACVIUN project (Violence Attention and Channeling Center at Universidad Nacional) - Violence reporting system for Universidad Nacional de Colombia campus.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+**Base Repository:** [VIPIngeSoftII](https://github.com/juserranor/VIPIngeSoftII.git)
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+REST API developed with NestJS to manage violence reports on university campus, including incident geolocation, classification by violence type, and analytical dashboard.
 
-## Project setup
+## Technologies
 
-```bash
-$ npm install
+### Framework & Language
+- **NestJS 11** - Progressive Node.js framework for building efficient server-side applications
+- **TypeScript 5.7** - Main language with experimental decorators support
+- **Node.js** - Runtime environment (recommended v18+)
+
+### Database
+- **MongoDB 6.21** - NoSQL database for report storage
+- **BSON 6.0** - Binary data serialization
+
+### Email Services
+- **SendGrid** - Transactional email service
+- **MailerSend 2.6** - Alternative for email management
+- **Resend 6.5** - Modern email service
+- **Nodemailer 7.0** - SMTP client for Node.js
+
+### Geolocation
+- **Turf.js 7.3** - Advanced geospatial analysis
+  - `@turf/boolean-point-in-polygon` - Point detection within campus zones
+  - `@turf/helpers` - Geospatial utilities
+
+### Security
+- **bcrypt 6.0** - Secure password hashing
+
+### Testing
+- **Jest 30** - Unit and integration testing framework
+- **Supertest 7** - HTTP endpoint testing
+- **ts-jest 29** - TypeScript transformer for Jest
+
+### Development Tools
+- **ESLint 9.18** - Code quality linter
+- **Prettier 3.4** - Automatic code formatter
+- **ts-node 10.9** - Direct TypeScript execution in development
+
+### Other Dependencies
+- **Express** - HTTP server (integrated in NestJS)
+- **RxJS 7.8** - Reactive programming
+- **Reflect Metadata** - Decorator support
+
+## Project Structure
+
+```
+src/
+├── app.module.ts              # Application root module
+├── app.controller.ts          # Main controller
+├── app.service.ts             # Main service
+├── main.ts                    # Application entry point
+│
+├── database/                  # Database module
+│   ├── mongo.module.ts        # MongoDB configuration
+│   ├── mongo.service.ts       # MongoDB connection service
+│   └── mongo.controller.ts    # Database controller
+│
+└── modules/                   # Functional modules
+    ├── Dtos/                  # Global Data Transfer Objects
+    │   └── session.dto.ts     # Session DTO
+    │
+    ├── user/                  # User module
+    │   ├── user.module.ts     # Module configuration
+    │   ├── user.controller.ts # User endpoints
+    │   ├── user.service.ts    # User business logic
+    │   └── Dtos/
+    │       ├── login.dto.ts           # Login DTO
+    │       ├── user.dto.ts            # User DTO
+    │       ├── verification-code.dto.ts  # Verification code DTO
+    │       └── verification.dto.ts    # Verification DTO
+    │
+    ├── report/                # Reports module
+    │   ├── report.module.ts   # Module configuration
+    │   ├── report.controller.ts # Report endpoints
+    │   ├── report.service.ts  # Report business logic
+    │   ├── Dtos/
+    │   │   └── report.dot.ts  # Report DTO
+    │   └── assets/
+    │       └── map.json       # GeoJSON map with campus zones
+    │
+    └── dashboard/             # Dashboard module
+        ├── dashboard.module.ts    # Module configuration
+        ├── dashboard.controller.ts # Statistics endpoints
+        └── dashboard.service.ts   # Analytics and statistics logic
 ```
 
-## Compile and run the project
+## Main Features
+
+### 1. User Management
+- Registration and authentication
+- Code verification
+- Session management
+
+### 2. Violence Reports
+- Geolocated report creation
+- Classification by violence type:
+  - Physical Violence
+  - Psychological Violence
+  - Sexual Violence
+  - Workplace Violence
+  - Discrimination
+- Automatic campus zone detection via coordinates
+- User report history
+- Report updating and deletion
+
+### 3. Analytical Dashboard
+- Retrieval of all report locations
+- Visualization of last 20 reports with:
+  - Incident date
+  - Violence type
+  - Geographic coordinates
+
+### 4. Geolocation
+- Mapping of 39 Universidad Nacional campus zones
+- Point-in-polygon detection algorithm using Turf.js
+- Automatic conversion of GPS coordinates to identified zones
+
+## Installation and Setup
+
+### Prerequisites
+- Node.js 18+ 
+- MongoDB 6+
+- npm or yarn
+
+### Installation
 
 ```bash
-# development
-$ npm run start
+# Clone the repository
+git clone https://github.com/juserranor/VIPIngeSoftII.git
+cd cacviun-backend
 
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+# Install dependencies
+npm install
 ```
 
-## Run tests
+### Environment Variables
+Create a `.env` file in the project root with:
+
+```env
+MONGO_URI=mongodb://localhost:27017/cacviun
+SENDGRID_API_KEY=your_api_key
+# Other variables according to configured email services
+```
+
+## Running the Application
 
 ```bash
-# unit tests
-$ npm run test
+# Development (with hot-reload)
+npm run start:dev
+
+# Production
+npm run build
+npm run start:prod
+
+# Debug mode
+npm run start:debug
+```
+
+## Testing
+
+```bash
+# Unit tests
+npm run test
 
 # e2e tests
-$ npm run test:e2e
+npm run test:e2e
 
-# test coverage
-$ npm run test:cov
+# Test coverage
+npm run test:cov
+
+# Watch mode
+npm run test:watch
 ```
 
-## Deployment
+## Main Endpoints
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+### Users
+- `POST /user/register` - User registration
+- `POST /user/login` - Login
+- `POST /user/verify` - Account verification
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### Reports
+- `POST /report` - Create new report
+- `GET /report/history/:email` - User report history
+- `GET /report/admin-history` - All reports (admin)
+- `PUT /report/:id` - Update report
+- `DELETE /report/:id` - Delete report
+
+### Dashboard
+- `GET /dashboard/get-locations` - Coordinates of all reports
+- `GET /dashboard/recent-violence` - Last 20 reports with details
+
+## Available Scripts
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+npm run build          # Compile TypeScript to JavaScript
+npm run format         # Format code with Prettier
+npm run lint           # Run ESLint and fix errors
+npm run start          # Start in production mode
+npm run start:dev      # Start with hot-reload
+npm run start:debug    # Start in debug mode
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## Resources and References
 
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+- [NestJS Documentation](https://docs.nestjs.com)
+- [MongoDB Documentation](https://www.mongodb.com/docs/)
+- [Turf.js Documentation](https://turfjs.org/)
+- [TypeScript Handbook](https://www.typescriptlang.org/docs/)
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+This project is under UNLICENSED license (private).
+
+## 🙏 Acknowledgments
+
+
+- Original codebase: [VIPIngeSoftII](https://github.com/juserranor/VIPIngeSoftII.git)
+- Universidad Nacional de Colombia
+- OpenStreetMap for map tiles
+- All contributors and maintainers
